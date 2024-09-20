@@ -20,11 +20,25 @@ form.addEventListener("submit", (event) => {
   addTask();
 });
 
-// 2. Ecouteur d'évènements "change" pour la mise à jour de l'affichage en cas de changement de valeur du filtre
+// 2. Ecouteur d'évènement pour le changement de filtre
 filterSelect.addEventListener("change", () => {
   selectedFilter = filterSelect.value;
-  updateTasksList(selectedFilter);
-})
+  updateTasksList();
+});
+
+// 3. Délégation d'événements sur la liste des tâches (pour la suppression et le changement de statut d'une tâche)
+tasksListUl.addEventListener("click", (event) => {
+  const target = event.target;
+  const index = target.closest("li").dataset.index; // Récupère l'index via l'attribut 'data-index' sur l'élément <li>
+
+  if (target.classList.contains("delete-button")) {
+    deleteTask(index);
+  }
+
+  if (target.classList.contains("task-status")) {
+    toggleStatus(index);
+  }
+});
 
 
 // **Définition des fonctions**
@@ -32,72 +46,72 @@ filterSelect.addEventListener("change", () => {
 // Fonction pour l'ajout d'une tâche
 function addTask() {
   const newTaskInput = document.getElementById("new-task-input");
+
   if (newTaskInput.value.trim() === "") {
     alert("La tâche ne peut pas être vide !");
     return;
   }
+
   const newTask = {
     name: newTaskInput.value,
     status: "todo", // Statut par défaut
   };
 
-  // Ajout d'une nouvelle tâche et enregistrement dans le localStorage sous forme de chaîne JSON
+  // Ajout de la nouvelle tâche et enregistrement dans le localStorage
   tasks.push(newTask);
-  localStorage.setItem("tasks", JSON.stringify(tasks));
+  saveTasksToStorage();
 
-  // Réinitialisation du champ de saisie d'une nouvelle tâche et mise à jour de l'affichage de la liste des tâches
+  // Ajout direct de la nouvelle tâche dans le DOM sans tout réactualiser
+  addTaskToDOM(newTask, tasks.length - 1);
+
+  // Réinitialisation du champ de saisie d'une nouvelle tâche
   newTaskInput.value = "";
-  updateTasksList(selectedFilter);
 }
 
-// Fonction pour le changement du statut d'une tâche ("todo" / "done")
-function toggleStatus(task, index) {
-  let toggleStatus = document.getElementById("task-status-" + index);
-  toggleStatus.addEventListener("change", () => {
-    task.status = toggleStatus.checked ? "done" : "todo";
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    updateTasksList(selectedFilter);
-  });
+// Fonction pour l'ajout d'une tâche dans le DOM sans réactualisation de toute la liste
+function addTaskToDOM(task, index) {
+  if (selectedFilter === "all" || selectedFilter === task.status) {
+    const taskHtml = `
+      <li class="task-list-li" data-index="${index}">
+        <input type="checkbox" id="task-status-${index}" class="task-status" ${task.status === "done" ? "checked" : ""}>
+        <label for="task-status-${index}" class="task-list-label">${task.name}</label>
+        <button class="delete-button">x</button>
+      </li>
+    `;
+    tasksListUl.insertAdjacentHTML("beforeend", taskHtml);
+  }
+}
+
+// Fonction pour le changement de statut d'une tâche ("todo" / "done")
+function toggleStatus(index) {
+  tasks[index].status = tasks[index].status === "todo" ? "done" : "todo";
+  saveTasksToStorage();
+  updateTasksList(); // Met à jour la liste en fonction du filtre
 }
 
 // Fonction pour la suppression définitive d'une tâche
-function deleteTask(index, selectedFilter) {
-  let deleteButton = document.getElementById("delete-button-" + index);
-  deleteButton.addEventListener("click", () => {
-    const taskItem = deleteButton.parentElement;
-    taskItem.classList.add("fade-out"); // Ajout de la classe 'fade-out' qui permettra l'animation CSS de disparition 
+function deleteTask(index) {
+  const taskItem = tasksListUl.querySelector(`[data-index="${index}"]`);
+  taskItem.classList.add("fade-out");
 
-    // Délai avant suppression du DOM pour permettre l'animation
-    setTimeout(() => {
-      tasks.splice(index, 1);
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      updateTasksList(selectedFilter);
-    }, 300);
+  // Délai avant suppression pour permettre l'animation CSS
+  setTimeout(() => {
+    tasks.splice(index, 1);
+    saveTasksToStorage();
+    updateTasksList(); // Met à jour la liste des tâches en fonction du filtre
+  }, 300);
+}
+
+// Fonction pour la mise à jour de la liste des tâches
+function updateTasksList() {
+  tasksListUl.innerHTML = ""; // Efface la liste existante
+
+  tasks.forEach((task, index) => {
+    addTaskToDOM(task, index); // Ajoute chaque tâche en fonction du filtre
   });
 }
 
-// Fonction de mise à jour de la liste des tâches
-function updateTasksList(selectedFilter) {
-  tasksListUl.innerHTML = "";
-
-  // Boucle sur les tâches pour les afficher
-  tasks.forEach((task, index) => {
-    if (selectedFilter === "all" || selectedFilter === task.status) {
-      tasksListUl.insertAdjacentHTML(
-        "beforeend",
-        `
-          <li class="task-list-li">
-              <input type="checkbox" id="task-status-${index}" class="task-status" ${task.status === "done" ? "checked" : ""
-        }>
-              <label for="task-status-${index}" class="task-list-label">${task.name}</label>
-              <button id="delete-button-${index}" class="delete-button">x</button>
-          </li>
-          `
-      );
-
-      toggleStatus(task, index);
-
-      deleteTask(index, selectedFilter);
-    }
-  });
+// Fonction pour la sauvegarde des tâches dans le localStorage
+function saveTasksToStorage() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
 }

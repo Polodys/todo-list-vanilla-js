@@ -2,17 +2,17 @@
 
 ## Description
 
-Cette application web permet de créer, gérer et supprimer des tâches.
-L'affichage apparaît sous la forme d'une liste, dans laquelle il est possible de marquer les tâches comme étant faites ou non, et de les supprimer.
-Un filtre permet de sélectionner le type d'affichage souhaité (toutes les tâches, uniquement les tâches à faire ou uniquement les tâches faites).
+Cette application web permet de créer, gérer et supprimer des tâches.  
+L'affichage apparaît sous la forme d'une liste, dans laquelle il est possible de marquer les tâches comme étant faites ou non, et de les supprimer.  
+Un filtre permet de sélectionner le type d'affichage souhaité (toutes les tâches, uniquement les tâches à faire ou uniquement les tâches faites).  
 Les tâches sont sauvegardées localement à l'aide du localStorage, ce qui assure une persistance des données.
 
 
 ## Fonctionnalités
 
 - Ajouter des tâches
-- Changer le statut des tâches ("à faire" ou "faite")
 - Supprimer des tâches (avec une animation de disparition)
+- Changer le statut des tâches ("à faire" ou "faite")
 - Filtrer les tâches ("Tout afficher", "A faire", "Faites")
 - Persistance des données via le localStorage
 
