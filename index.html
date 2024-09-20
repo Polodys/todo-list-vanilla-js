@@ -16,15 +16,24 @@
         <h1>TODO list</h1>
       </header>
 
-      <div id="newTaskDiv">
-        <form id="newTaskForm">
-          <input type="text" id="newTaskInput" name="newTaskInput" placeholder="Nouvelle tâche"/>
+      <div id="new-task-div">
+        <form id="new-task-form">
+          <input type="text" id="new-task-input" name="new-task-input" placeholder="Nouvelle tâche" required/>
           <button type="submit">+</button>
         </form>
       </div>
+       
+      <div id="filter-div">
+        <!-- <label for="filter-select">Filtre :</label> -->
+        <select id="filter-select">
+          <option value="all" autofocus>Tout afficher</option>
+          <option value="todo">A faire</option>
+          <option value="done">Fait</option>
+        </select>
+      </div>
 
-      <div id="tasksListDiv">
-        <ul id="tasksListUl"></ul>
+      <div id="tasks-list-div">
+        <ul id="tasks-list-ul"></ul>
       </div>
     </div>
 
